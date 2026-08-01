@@ -47,19 +47,19 @@ export function WiringEdge({
         markerEnd={markerEnd}
         style={{
           ...style,
-          stroke: muted ? '#cfc6b8' : '#8a8278',
-          strokeWidth: muted ? 1.25 : 1.75,
+          stroke: muted ? '#cfc6b8' : '#5c564e',
+          strokeWidth: muted ? 1.25 : 2,
         }}
         className="sim-edge sim-edge-wiring"
       />
       {!muted && (
         <circle
-          r={3.25}
+          r={2.5}
           fill="#0f6e56"
           stroke="#fffdf8"
           strokeWidth={1}
           className="sim-packet sim-packet-wiring"
-          opacity={0.9}
+          opacity={0.7}
         >
           <animateMotion
             path={edgePath}

@@ -8,14 +8,34 @@ export function Inspector() {
   const updateNode = useAppStore((s) => s.updateNode)
   const clearNodeCapacity = useAppStore((s) => s.clearNodeCapacity)
   const removeNode = useAppStore((s) => s.removeNode)
+  const setMode = useAppStore((s) => s.setMode)
 
   const node = diagram.nodes.find((n) => n.id === selectedNodeId)
 
   if (!node) {
+    const hasNodes = diagram.nodes.length > 0
     return (
       <aside className="panel panel-right" aria-label="Inspector">
         <h2>Inspector</h2>
-        <p className="muted">Select a node to edit label and capacity.</p>
+        <div className="inspector-empty">
+          <p>Select a node to edit its label and capacity.</p>
+          <p className="muted">
+            Edge <code>A → B</code> means A depends on B.
+          </p>
+          {hasNodes ? (
+            <button
+              type="button"
+              className="action-btn action-btn-quiet inspector-empty-cta"
+              onClick={() => setMode('health')}
+            >
+              Open Health
+            </button>
+          ) : (
+            <p className="muted">
+              Place nodes from the Palette, or load a starter to begin.
+            </p>
+          )}
+        </div>
       </aside>
     )
   }

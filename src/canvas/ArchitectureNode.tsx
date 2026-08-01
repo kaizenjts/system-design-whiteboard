@@ -67,7 +67,10 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
       data-finding-tone={findingTone ?? undefined}
     >
       <Handle type="target" position={Position.Left} />
-      <div className="arch-node-type">{NODE_TYPE_LABELS[data.nodeType]}</div>
+      <div className="arch-node-head">
+        <span className="arch-node-swatch" aria-hidden />
+        <div className="arch-node-type">{NODE_TYPE_LABELS[data.nodeType]}</div>
+      </div>
       <div className="arch-node-label">{title}</div>
       {data.loadRps !== undefined && (
         <div className="arch-node-load">
