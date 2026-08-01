@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { useAppStore } from '../app/store'
 import { parseDiagram, serializeDiagram } from '../persistence/diagramStorage'
-import { STARTERS, starterById, type StarterId } from '../starters/catalog'
+import { STARTER_PICKER, starterPickerByKey } from '../starters/catalog'
 
 export function DiagramActions() {
   const setDiagram = useAppStore((s) => s.setDiagram)
+  const setMode = useAppStore((s) => s.setMode)
   const diagram = useAppStore((s) => s.diagram)
   const fileRef = useRef<HTMLInputElement>(null)
   const pickerRef = useRef<HTMLDetailsElement>(null)
@@ -20,9 +21,10 @@ export function DiagramActions() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [])
 
-  function loadStarter(id: StarterId) {
-    const starter = starterById(id)
-    setDiagram(starter.create(), { activeStarter: starter.id })
+  function loadPickerEntry(key: string) {
+    const entry = starterPickerByKey(key)
+    setDiagram(entry.create(), { activeStarter: entry.activeStarter })
+    if (entry.openHealth) setMode('health')
     if (pickerRef.current) pickerRef.current.open = false
   }
 
@@ -61,15 +63,18 @@ export function DiagramActions() {
           Load starter
         </summary>
         <div className="starter-picker-menu" role="menu">
-          {STARTERS.map((starter) => (
+          {STARTER_PICKER.map((entry) => (
             <button
-              key={starter.id}
+              key={entry.key}
               type="button"
               role="menuitem"
               className="starter-picker-item"
-              onClick={() => loadStarter(starter.id)}
+              onClick={() => loadPickerEntry(entry.key)}
             >
-              {starter.label}
+              <span className="starter-picker-item-label">{entry.label}</span>
+              {entry.hint ? (
+                <span className="starter-picker-item-hint">{entry.hint}</span>
+              ) : null}
             </button>
           ))}
         </div>

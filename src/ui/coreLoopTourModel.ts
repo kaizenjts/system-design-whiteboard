@@ -27,7 +27,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
   {
     id: 'starter',
     title: 'Pick a starter',
-    body: 'Load URL Shortener or Notification Service for a ready diagram — or draw from the palette.',
+    body: 'Load URL Shortener, Notification Service, or “find the gaps” for a ready diagram — or draw from the palette.',
     target: (snap) => (snap.nodeCount === 0 ? 'empty-canvas' : 'starter'),
     isComplete: (snap) => snap.activeStarter != null || snap.nodeCount > 0,
   },

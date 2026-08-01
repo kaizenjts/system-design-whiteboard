@@ -319,7 +319,7 @@ h2 {
   top: calc(100% + 0.25rem);
   left: 0;
   z-index: 30;
-  min-width: 12rem;
+  min-width: 16.5rem;
   display: grid;
   padding: 0.25rem;
   border: 1px solid var(--line);
@@ -338,11 +338,27 @@ h2 {
   cursor: pointer;
   font: inherit;
   font-size: 0.8rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.starter-picker-item-label {
+  font-weight: 500;
+}
+
+.starter-picker-item-hint {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .starter-picker-item:hover {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.starter-picker-item:hover .starter-picker-item-hint {
+  color: color-mix(in srgb, var(--accent) 70%, var(--muted));
 }
 
 .action-btn {
