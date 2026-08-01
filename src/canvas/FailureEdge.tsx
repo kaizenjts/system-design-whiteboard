@@ -1,6 +1,6 @@
 import {
   BaseEdge,
-  getBezierPath,
+  getSmoothStepPath,
   type Edge,
   type EdgeProps,
 } from '@xyflow/react'
@@ -28,13 +28,15 @@ export function FailureEdge({
   data,
   style,
 }: EdgeProps<FailureFlowEdge>) {
-  const [path] = getBezierPath({
+  const [path] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
     targetY,
     sourcePosition,
     targetPosition,
+    borderRadius: 10,
+    offset: 18,
   })
 
   const hot = Boolean(data?.inBlastRadius)

@@ -581,8 +581,12 @@ h2 {
   font-size: 0.78em;
 }
 
+.inspector-empty-loop {
+  font-size: 0.78rem;
+}
+
 .inspector-empty-cta {
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
   justify-self: start;
 }
 
@@ -590,6 +594,53 @@ h2 {
   display: grid;
   gap: 0.75rem;
   margin-top: 0.75rem;
+}
+
+.inspector-type {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.inspector-type-swatch {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 0.15rem;
+  flex-shrink: 0;
+  background: var(--line);
+}
+
+.inspector-type[data-node-type='client'] .inspector-type-swatch {
+  background: var(--node-client);
+}
+
+.inspector-type[data-node-type='cdn_dns'] .inspector-type-swatch {
+  background: var(--node-cdn_dns);
+}
+
+.inspector-type[data-node-type='load_balancer'] .inspector-type-swatch {
+  background: var(--node-load_balancer);
+}
+
+.inspector-type[data-node-type='api'] .inspector-type-swatch {
+  background: var(--node-api);
+}
+
+.inspector-type[data-node-type='cache'] .inspector-type-swatch {
+  background: var(--node-cache);
+}
+
+.inspector-type[data-node-type='database'] .inspector-type-swatch {
+  background: var(--node-database);
+}
+
+.inspector-type[data-node-type='queue'] .inspector-type-swatch {
+  background: var(--node-queue);
+}
+
+.inspector-type input {
+  flex: 1;
+  min-width: 0;
 }
 
 .field {
@@ -717,6 +768,19 @@ h2 {
 .arch-node-label {
   margin-top: 0.15rem;
   font-weight: 600;
+}
+
+.arch-node-capacity {
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.arch-node-capacity-unit {
+  font-family: inherit;
+  font-weight: 400;
 }
 
 .arch-node-load {

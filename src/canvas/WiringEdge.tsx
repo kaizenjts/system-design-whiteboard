@@ -1,6 +1,6 @@
 import {
   BaseEdge,
-  getBezierPath,
+  getSmoothStepPath,
   type Edge,
   type EdgeProps,
 } from '@xyflow/react'
@@ -15,6 +15,7 @@ export type WiringFlowEdge = Edge<WiringEdgeData>
 /**
  * Default / Design-mode wiring with a subtle flowing dash + traveling bead
  * so cables never feel "dead" on the canvas.
+ * Smooth-step paths keep forks (e.g. API → Cache / Queue) readable.
  */
 export function WiringEdge({
   id,
@@ -28,13 +29,15 @@ export function WiringEdge({
   style,
   data,
 }: EdgeProps<WiringFlowEdge>) {
-  const [edgePath] = getBezierPath({
+  const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
     targetY,
     sourcePosition,
     targetPosition,
+    borderRadius: 10,
+    offset: 18,
   })
 
   const muted = Boolean(data?.muted)

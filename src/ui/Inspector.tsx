@@ -23,13 +23,18 @@ export function Inspector() {
             Edge <code>A → B</code> means A depends on B.
           </p>
           {hasNodes ? (
-            <button
-              type="button"
-              className="action-btn action-btn-quiet inspector-empty-cta"
-              onClick={() => setMode('health')}
-            >
-              Open Health
-            </button>
+            <>
+              <p className="muted inspector-empty-loop">
+                Next: Health → Traffic → Failure
+              </p>
+              <button
+                type="button"
+                className="action-btn action-btn-primary inspector-empty-cta"
+                onClick={() => setMode('health')}
+              >
+                Open Health
+              </button>
+            </>
           ) : (
             <p className="muted">
               Place nodes from the Palette, or load a starter to begin.
@@ -49,7 +54,10 @@ export function Inspector() {
       <div className="inspector-fields">
         <label className="field">
           <span>Type</span>
-          <input value={NODE_TYPE_LABELS[node.type]} readOnly />
+          <div className="inspector-type" data-node-type={node.type}>
+            <span className="inspector-type-swatch" aria-hidden />
+            <input value={NODE_TYPE_LABELS[node.type]} readOnly />
+          </div>
         </label>
         <label className="field">
           <span>Label</span>

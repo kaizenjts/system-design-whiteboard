@@ -1,7 +1,7 @@
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getBezierPath,
+  getSmoothStepPath,
   type Edge,
   type EdgeProps,
 } from '@xyflow/react'
@@ -29,13 +29,15 @@ export function TrafficEdge({
   data,
   style,
 }: EdgeProps<TrafficFlowEdge>) {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     targetX,
     targetY,
     sourcePosition,
     targetPosition,
+    borderRadius: 10,
+    offset: 18,
   })
 
   const load = data?.loadRps ?? 0

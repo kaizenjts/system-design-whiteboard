@@ -1,5 +1,6 @@
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import { useEffect, useState, type CSSProperties } from 'react'
+import { defaultCapacity, formatCapacity } from '../domain/capacity'
 import { NODE_TYPE_LABELS } from '../domain/catalog'
 import type { ArchitectureNodeData } from './adapters'
 
@@ -10,6 +11,7 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
   const fail = data.failureState && data.failureState !== 'healthy'
   const finding = data.findingSeverity
   const findingTone = data.findingTone
+  const capacityRps = data.capacity ?? defaultCapacity(data.nodeType)
   const [findingPulse, setFindingPulse] = useState(false)
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
         <div className="arch-node-type">{NODE_TYPE_LABELS[data.nodeType]}</div>
       </div>
       <div className="arch-node-label">{title}</div>
-      {data.loadRps !== undefined && (
+      {data.loadRps !== undefined ? (
         <div className="arch-node-load">
           <span className="arch-node-load-value">
             {Math.round(data.loadRps).toLocaleString()}
@@ -85,7 +87,12 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
             <span className="arch-node-badge warn">warning</span>
           )}
         </div>
-      )}
+      ) : capacityRps !== undefined ? (
+        <div className="arch-node-capacity">
+          {formatCapacity(capacityRps)}
+          <span className="arch-node-capacity-unit"> req/s</span>
+        </div>
+      ) : null}
       {fail && (
         <div className="arch-node-fail-label" aria-live="polite">
           {data.failureState}
