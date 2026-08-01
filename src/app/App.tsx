@@ -1,7 +1,7 @@
 import { SimulatorCanvas } from '../canvas/SimulatorCanvas'
 import { useDiagramAutoSave } from '../persistence/useDiagramAutoSave'
 import { MODES } from '../domain/types'
-import { CoreLoopTip } from '../ui/CoreLoopTip'
+import { CoreLoopTour } from '../ui/CoreLoopTour'
 import { DiagramActions } from '../ui/DiagramActions'
 import { FailurePanel } from '../ui/FailurePanel'
 import { FindingsPanel } from '../ui/FindingsPanel'
@@ -35,6 +35,7 @@ export function App() {
                   className={mode === m.id ? 'mode-btn active' : 'mode-btn'}
                   title={m.hint}
                   aria-label={`${m.label}: ${m.hint}`}
+                  data-tour={`mode-${m.id}`}
                   onClick={() => setMode(m.id)}
                 >
                   {m.label}
@@ -43,7 +44,7 @@ export function App() {
             </nav>
           </div>
         </header>
-        <CoreLoopTip />
+        <CoreLoopTour />
       </div>
 
       <main className={mode === 'design' ? 'app-main' : 'app-main app-main-sim'}>

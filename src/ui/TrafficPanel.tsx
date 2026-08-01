@@ -86,7 +86,12 @@ export function TrafficPanel() {
         onChange={(e) => setLoadRps(Number(e.target.value))}
         aria-label="Load slider"
       />
-      <div className="traffic-presets" role="group" aria-label="Load presets">
+      <div
+        className="traffic-presets"
+        role="group"
+        aria-label="Load presets"
+        data-tour="traffic-presets"
+      >
         {LOAD_PRESETS.map(([value, label]) => {
           const suggested = idle && value === 3_000 && loadRps !== 3_000
           return (

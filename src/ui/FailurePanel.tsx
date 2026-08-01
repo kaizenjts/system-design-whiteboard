@@ -62,6 +62,7 @@ export function FailurePanel() {
         <button
           type="button"
           className="action-btn action-btn-primary"
+          data-tour="fail-database"
           disabled={!database}
           onClick={() => database && failNode(database.id)}
         >

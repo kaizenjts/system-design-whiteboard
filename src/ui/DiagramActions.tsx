@@ -56,7 +56,7 @@ export function DiagramActions() {
 
   return (
     <div className="diagram-actions" aria-label="Diagram actions">
-      <details ref={pickerRef} className="starter-picker">
+      <details ref={pickerRef} className="starter-picker" data-tour="starter">
         <summary className="action-btn action-btn-primary starter-picker-summary">
           Load starter
         </summary>

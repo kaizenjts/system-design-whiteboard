@@ -14,7 +14,7 @@ export function EmptyCanvasHint() {
   }
 
   return (
-    <div className="empty-canvas-hint" role="status">
+    <div className="empty-canvas-hint" role="status" data-tour="empty-canvas">
       <p>
         Pick a starter for the ~60s loop (Health → Traffic → Failure), or place
         nodes from the palette.

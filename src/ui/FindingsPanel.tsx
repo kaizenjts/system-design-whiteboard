@@ -13,7 +13,7 @@ export function FindingsPanel() {
   const database = diagram.nodes.find((n) => n.type === 'database')
 
   return (
-    <aside className="panel panel-right" aria-label="Findings">
+    <aside className="panel panel-right" aria-label="Findings" data-tour="findings">
       <div className="panel-heading">
         <h2>Findings</h2>
         <button
