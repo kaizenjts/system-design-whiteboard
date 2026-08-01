@@ -4,6 +4,13 @@ import { defaultCapacity } from '../domain/capacity'
 import { NODE_TYPE_LABELS } from '../domain/catalog'
 import { simulateTraffic } from '../simulation/traffic/traffic'
 
+const LOAD_PRESETS = [
+  [1_500, '1.5k'],
+  [2_000, '2k'],
+  [3_000, '3k'],
+  [5_000, '5k'],
+] as const
+
 export function TrafficPanel() {
   const diagram = useAppStore((s) => s.diagram)
   const loadRps = useAppStore((s) => s.loadRps)
@@ -35,13 +42,30 @@ export function TrafficPanel() {
 
   const selected = diagram.nodes.find((n) => n.id === selectedNodeId)
   const selectedTraffic = traffic.nodes.find((n) => n.nodeId === selectedNodeId)
+  const hasNodes = diagram.nodes.length > 0
+  const idle =
+    hasNodes &&
+    traffic.bottleneckNodeIds.length === 0 &&
+    traffic.warningNodeIds.length === 0
 
   return (
     <aside className="panel panel-right" aria-label="Traffic">
       <h2>Traffic</h2>
-      <p className="muted">
-        Global Load enters at Client. ≥80% warning, &gt;100% bottleneck.
-      </p>
+      {hasNodes ? (
+        <div className="mode-coach">
+          <p className="mode-coach-title">
+            {idle ? 'Stress the diagram with Load' : 'Watch Warning vs Bottleneck'}
+          </p>
+          <p className="muted">
+            {idle
+              ? 'Start at 1.5k, then try 3k — Database often becomes the bottleneck.'
+              : '≥80% capacity is a warning; over 100% is a bottleneck.'}
+          </p>
+        </div>
+      ) : (
+        <p className="muted">Load a starter or draw nodes, then set Load.</p>
+      )}
+
       <label className="field">
         <span>Load (req/s)</span>
         <input
@@ -63,29 +87,29 @@ export function TrafficPanel() {
         aria-label="Load slider"
       />
       <div className="traffic-presets" role="group" aria-label="Load presets">
-        {(
-          [
-            [1_500, '1.5k'],
-            [2_000, '2k'],
-            [3_000, '3k'],
-            [5_000, '5k'],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            className={
-              loadRps === value
-                ? 'action-btn action-btn-primary'
-                : 'action-btn'
-            }
-            aria-pressed={loadRps === value}
-            onClick={() => setLoadRps(value)}
-          >
-            {label}
-          </button>
-        ))}
+        {LOAD_PRESETS.map(([value, label]) => {
+          const suggested = idle && value === 3_000 && loadRps !== 3_000
+          return (
+            <button
+              key={value}
+              type="button"
+              className={
+                loadRps === value || suggested
+                  ? 'action-btn action-btn-primary'
+                  : 'action-btn'
+              }
+              aria-pressed={loadRps === value}
+              onClick={() => setLoadRps(value)}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
+      {idle && loadRps !== 3_000 ? (
+        <p className="muted mode-coach-hint">Suggested next: try 3k.</p>
+      ) : null}
+
       <div
         className={
           summaryFlash ? 'traffic-summary traffic-summary-flash' : 'traffic-summary'

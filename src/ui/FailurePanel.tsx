@@ -37,13 +37,26 @@ export function FailurePanel() {
   const failedNode = diagram.nodes.find((n) => n.id === failedNodeId)
   const database = diagram.nodes.find((n) => n.type === 'database')
   const queue = diagram.nodes.find((n) => n.type === 'queue')
+  const hasNodes = diagram.nodes.length > 0
+  const idle = hasNodes && !failedNodeId
 
   return (
     <aside className="panel panel-right" aria-label="Failure simulation">
       <h2>Failure</h2>
-      <p className="muted">
-        Select a node, then simulate failure. Cascade follows dependents only.
-      </p>
+      {hasNodes ? (
+        <div className="mode-coach">
+          <p className="mode-coach-title">
+            {idle ? 'Pick a failure target' : 'Inspect the blast radius'}
+          </p>
+          <p className="muted">
+            {idle
+              ? 'Fail Database or Queue to see dependents cascade. Only one node fails at a time.'
+              : 'Failed / Down / Degraded mark the blast radius. Clear to try another target.'}
+          </p>
+        </div>
+      ) : (
+        <p className="muted">Load a starter or draw nodes, then simulate failure.</p>
+      )}
 
       <div className="traffic-presets failure-actions">
         <button
@@ -116,6 +129,10 @@ export function FailurePanel() {
           </p>
           <p className="finding-body">{selectedFailure.reason}</p>
         </div>
+      ) : idle ? (
+        <p className="muted">
+          Or select a node, then Simulate selected.
+        </p>
       ) : (
         <p className="muted">Select a node to see its failure reason.</p>
       )}

@@ -3,8 +3,14 @@ import type { Finding } from '../simulation/health/healthCheck'
 
 export function FindingsPanel() {
   const findings = useAppStore((s) => s.findings)
+  const diagram = useAppStore((s) => s.diagram)
   const runHealthCheck = useAppStore((s) => s.runHealthCheck)
   const selectFinding = useAppStore((s) => s.selectFinding)
+  const setMode = useAppStore((s) => s.setMode)
+  const failNode = useAppStore((s) => s.failNode)
+
+  const hasNodes = diagram.nodes.length > 0
+  const database = diagram.nodes.find((n) => n.type === 'database')
 
   return (
     <aside className="panel panel-right" aria-label="Findings">
@@ -19,7 +25,42 @@ export function FindingsPanel() {
         </button>
       </div>
       {findings.length === 0 ? (
-        <p className="muted">No findings. Nice — or draw more, then Re-run.</p>
+        <div className="findings-empty">
+          {hasNodes ? (
+            <>
+              <p className="findings-empty-title">Architecture looks solid</p>
+              <p className="muted">
+                No Health findings on this diagram. Stress it next with Traffic
+                or Failure.
+              </p>
+              <div className="findings-empty-actions">
+                <button
+                  type="button"
+                  className="action-btn action-btn-primary"
+                  onClick={() => setMode('traffic')}
+                >
+                  Open Traffic
+                </button>
+                <button
+                  type="button"
+                  className="action-btn"
+                  disabled={!database}
+                  onClick={() => {
+                    if (!database) return
+                    setMode('failure')
+                    failNode(database.id)
+                  }}
+                >
+                  Fail Database
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="muted">
+              Draw a diagram or load a starter, then Re-run.
+            </p>
+          )}
+        </div>
       ) : (
         <ul className="findings-list">
           {findings.map((f) => (

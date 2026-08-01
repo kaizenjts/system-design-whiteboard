@@ -87,7 +87,7 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
             <span className="arch-node-badge warn">warning</span>
           )}
         </div>
-      ) : capacityRps !== undefined ? (
+      ) : capacityRps !== undefined && data.showCapacityHint !== false ? (
         <div className="arch-node-capacity">
           {formatCapacity(capacityRps)}
           <span className="arch-node-capacity-unit"> req/s</span>

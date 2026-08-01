@@ -52,9 +52,11 @@ export function Palette() {
                 type="button"
                 className="palette-btn"
                 data-node-type={type}
+                data-tooltip={`${NODE_TYPE_LABELS[type]} · ${meta}`}
                 disabled={!editable}
                 draggable={editable}
                 title={`${NODE_TYPE_LABELS[type]} · ${meta}`}
+                aria-label={`${NODE_TYPE_LABELS[type]} · ${meta}`}
                 onClick={() => addNode(type)}
                 onDragStart={(e) => {
                   if (!editable) {

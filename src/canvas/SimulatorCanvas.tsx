@@ -105,6 +105,7 @@ function SimulatorCanvasInner() {
         highlightNodeIds: failure.blastRadiusNodeIds,
         failureByNodeId,
         cascadeHopByNodeId,
+        showCapacityHint: false,
       })
     }
     const findingSeverityByNodeId = severityByNode(findings, highlightNodeIds)
@@ -114,6 +115,7 @@ function SimulatorCanvasInner() {
       findingSeverityByNodeId,
       healthHighlightMode,
       findingPulseKey,
+      showCapacityHint: mode === 'design',
     })
   }, [
     diagram,
@@ -124,6 +126,7 @@ function SimulatorCanvasInner() {
     findingPulseKey,
     traffic,
     failure,
+    mode,
   ])
 
   const edges = useMemo(() => {

@@ -32,16 +32,26 @@ describe('domain ↔ React Flow adapters', () => {
         type: 'client',
         position: { x: 10, y: 20 },
         selected: false,
-        data: { label: 'Client', nodeType: 'client' },
+        data: { label: 'Client', nodeType: 'client', showCapacityHint: true },
       },
       {
         id: 'b',
         type: 'api',
         position: { x: 100, y: 20 },
         selected: false,
-        data: { label: 'API', nodeType: 'api', capacity: 4_000 },
+        data: {
+          label: 'API',
+          nodeType: 'api',
+          showCapacityHint: true,
+          capacity: 4_000,
+        },
       },
     ])
+  })
+
+  it('can suppress Design capacity hints', () => {
+    const nodes = toFlowNodes(sample, { showCapacityHint: false })
+    expect(nodes.every((n) => n.data.showCapacityHint === false)).toBe(true)
   })
 
   it('marks the selected domain node on the RF view model', () => {

@@ -468,6 +468,36 @@ h2 {
   height: 0.7rem;
 }
 
+.panel-left-collapsed .palette-btn {
+  position: relative;
+}
+
+.panel-left-collapsed .palette-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 0.45rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  white-space: nowrap;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 500;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 12%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.panel-left-collapsed .palette-btn:hover::after,
+.panel-left-collapsed .palette-btn:focus-visible::after {
+  opacity: 1;
+}
+
 .palette-list {
   list-style: none;
   margin: 0.75rem 0 0;
@@ -948,6 +978,24 @@ h2 {
   margin-bottom: 0.75rem;
 }
 
+.mode-coach {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.mode-coach-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mode-coach-hint {
+  margin: -0.35rem 0 0.75rem;
+  font-size: 0.78rem;
+}
+
 .failure-actions {
   margin-top: 0.75rem;
 }
@@ -1070,6 +1118,25 @@ h2 {
 
 .panel-heading h2 {
   margin-bottom: 0;
+}
+
+.findings-empty {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.findings-empty-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.findings-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
 }
 
 .findings-list {

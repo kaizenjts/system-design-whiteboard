@@ -21,6 +21,8 @@ export type ArchitectureNodeData = {
   findingTone?: 'presence' | 'focus'
   /** Bumps to play one-shot pulse on focus. */
   findingPulseKey?: number
+  /** Show muted capacity under the label (Design). Off in Health/Failure. */
+  showCapacityHint?: boolean
   [key: string]: unknown
 }
 
@@ -46,6 +48,8 @@ export type FlowViewOptions = {
   > | Record<string, 'high' | 'medium'>
   healthHighlightMode?: 'none' | 'presence' | 'focus'
   findingPulseKey?: number
+  /** When false, nodes omit the Design capacity hint. */
+  showCapacityHint?: boolean
 }
 
 export function toFlowNodes(
@@ -62,6 +66,7 @@ export function toFlowNodes(
   const findingSeverity = toSeverityMap(options.findingSeverityByNodeId)
   const healthMode = options.healthHighlightMode ?? 'none'
   const findingPulseKey = options.findingPulseKey ?? 0
+  const showCapacityHint = options.showCapacityHint !== false
 
   return diagram.nodes.map((n) => {
     const failure = failures?.get(n.id)
@@ -108,6 +113,7 @@ export function toFlowNodes(
       data: {
         label: n.label,
         nodeType: n.type,
+        showCapacityHint,
         ...(n.capacity !== undefined ? { capacity: n.capacity } : {}),
         ...(loadRps !== undefined
           ? { loadRps, trafficState, onTrafficPath }
