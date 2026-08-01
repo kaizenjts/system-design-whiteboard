@@ -36,9 +36,9 @@ export type DiagramDocument = {
   viewport?: { x: number; y: number; zoom: number }
 }
 
-export const MODES: { id: Mode; label: string }[] = [
-  { id: 'design', label: 'Design' },
-  { id: 'health', label: 'Health' },
-  { id: 'traffic', label: 'Traffic' },
-  { id: 'failure', label: 'Failure' },
+export const MODES: { id: Mode; label: string; hint: string }[] = [
+  { id: 'design', label: 'Design', hint: 'Draw and connect nodes' },
+  { id: 'health', label: 'Health', hint: 'Architecture findings' },
+  { id: 'traffic', label: 'Traffic', hint: 'Load and bottlenecks' },
+  { id: 'failure', label: 'Failure', hint: 'Blast radius' },
 ]

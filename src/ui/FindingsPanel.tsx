@@ -10,7 +10,11 @@ export function FindingsPanel() {
     <aside className="panel panel-right" aria-label="Findings">
       <div className="panel-heading">
         <h2>Findings</h2>
-        <button type="button" className="action-btn" onClick={runHealthCheck}>
+        <button
+          type="button"
+          className="action-btn action-btn-primary"
+          onClick={runHealthCheck}
+        >
           Re-run
         </button>
       </div>

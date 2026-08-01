@@ -9,12 +9,18 @@ export type ArchitectureNodeData = {
   capacity?: number
   loadRps?: number
   trafficState?: 'ok' | 'warning' | 'bottleneck'
+  /** Light accent: on Client→Bottleneck path, not the Bottleneck node. */
+  onTrafficPath?: boolean
   failureState?: 'failed' | 'down' | 'degraded' | 'healthy'
   failureReason?: string
   /** Hop distance from the failed root — drives cascade stagger. */
   cascadeHop?: number
   /** Health finding severity when highlighted. */
   findingSeverity?: 'high' | 'medium'
+  /** Soft union presence vs focused Finding. */
+  findingTone?: 'presence' | 'focus'
+  /** Bumps to play one-shot pulse on focus. */
+  findingPulseKey?: number
   [key: string]: unknown
 }
 
@@ -38,6 +44,8 @@ export type FlowViewOptions = {
     string,
     'high' | 'medium'
   > | Record<string, 'high' | 'medium'>
+  healthHighlightMode?: 'none' | 'presence' | 'focus'
+  findingPulseKey?: number
 }
 
 export function toFlowNodes(
@@ -52,29 +60,41 @@ export function toFlowNodes(
   const failures = options.failureByNodeId
   const hops = toNumberMap(options.cascadeHopByNodeId)
   const findingSeverity = toSeverityMap(options.findingSeverityByNodeId)
+  const healthMode = options.healthHighlightMode ?? 'none'
+  const findingPulseKey = options.findingPulseKey ?? 0
 
   return diagram.nodes.map((n) => {
     const failure = failures?.get(n.id)
     const severity = findingSeverity.get(n.id)
+    const isBottleneck = bottlenecks.has(n.id)
+    const isWarning = warnings.has(n.id)
+    // Traffic path accent: nodes on Client→Bottleneck path except the Bottleneck itself.
+    const onTrafficPath =
+      highlights.has(n.id) && !severity && !isBottleneck && !failure
+    const findingTone =
+      severity && (healthMode === 'presence' || healthMode === 'focus')
+        ? healthMode
+        : undefined
     const classes = [
-      highlights.has(n.id)
+      highlights.has(n.id) && severity
         ? severity === 'high'
           ? 'rf-node-highlight rf-node-finding-high'
-          : severity === 'medium'
-            ? 'rf-node-highlight rf-node-finding-medium'
-            : 'rf-node-highlight'
+          : 'rf-node-highlight rf-node-finding-medium'
         : '',
-      bottlenecks.has(n.id) ? 'rf-node-bottleneck' : '',
-      warnings.has(n.id) ? 'rf-node-warning' : '',
+      findingTone === 'presence' ? 'rf-node-finding-presence' : '',
+      findingTone === 'focus' ? 'rf-node-finding-focus' : '',
+      onTrafficPath ? 'rf-node-traffic-path' : '',
+      isBottleneck ? 'rf-node-bottleneck' : '',
+      isWarning ? 'rf-node-warning' : '',
       failure && failure.state !== 'healthy' ? `rf-node-fail-${failure.state}` : '',
     ]
       .filter(Boolean)
       .join(' ')
 
     const loadRps = loads.get(n.id)
-    const trafficState = bottlenecks.has(n.id)
+    const trafficState = isBottleneck
       ? 'bottleneck'
-      : warnings.has(n.id)
+      : isWarning
         ? 'warning'
         : 'ok'
     const cascadeHop = hops.get(n.id)
@@ -89,7 +109,9 @@ export function toFlowNodes(
         label: n.label,
         nodeType: n.type,
         ...(n.capacity !== undefined ? { capacity: n.capacity } : {}),
-        ...(loadRps !== undefined ? { loadRps, trafficState } : {}),
+        ...(loadRps !== undefined
+          ? { loadRps, trafficState, onTrafficPath }
+          : {}),
         ...(failure
           ? {
               failureState: failure.state,
@@ -97,7 +119,13 @@ export function toFlowNodes(
               ...(cascadeHop !== undefined ? { cascadeHop } : {}),
             }
           : {}),
-        ...(severity ? { findingSeverity: severity } : {}),
+        ...(severity
+          ? {
+              findingSeverity: severity,
+              findingTone,
+              ...(findingTone === 'focus' ? { findingPulseKey } : {}),
+            }
+          : {}),
       },
     }
   })
@@ -109,24 +137,23 @@ export function toFlowEdges(
 ): Edge[] {
   const highlights = toSet(options.highlightEdgeIds)
   const edgeLoads = toLoadMap(options.edgeLoadById)
-  const bottlenecks = toSet(options.bottleneckNodeIds)
   const warnings = toSet(options.warningNodeIds)
   const blastNodes = toSet(options.highlightNodeIds)
   const edgeMode = options.edgeMode ?? 'default'
 
   return diagram.edges.map((e) => {
     const loadRps = edgeLoads.get(e.id) ?? 0
-    const touchesBottleneck =
-      bottlenecks.has(e.source) || bottlenecks.has(e.target)
     const touchesWarning = warnings.has(e.source) || warnings.has(e.target)
     const inBlast =
       blastNodes.has(e.source) && blastNodes.has(e.target)
 
     if (edgeMode === 'traffic') {
+      // Packets + danger stroke only on engine highlight paths (Client→Bottleneck).
+      const onBottleneckPath = highlights.has(e.id) && loadRps > 0
       const data: TrafficEdgeData = {
         loadRps,
-        bottleneck: touchesBottleneck && loadRps > 0,
-        warning: !touchesBottleneck && touchesWarning && loadRps > 0,
+        onBottleneckPath,
+        warning: !onBottleneckPath && touchesWarning && loadRps > 0,
       }
       return {
         id: e.id,
@@ -134,7 +161,7 @@ export function toFlowEdges(
         target: e.target,
         type: 'traffic',
         markerEnd: { type: MarkerType.ArrowClosed },
-        className: highlights.has(e.id) ? 'rf-edge-highlight' : undefined,
+        className: onBottleneckPath ? 'rf-edge-bottleneck-path' : undefined,
         data,
       }
     }

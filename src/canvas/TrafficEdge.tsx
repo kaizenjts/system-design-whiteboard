@@ -8,14 +8,15 @@ import {
 
 export type TrafficEdgeData = {
   loadRps?: number
-  bottleneck?: boolean
+  /** Packets + danger treatment — only Client→Bottleneck highlight edges. */
+  onBottleneckPath?: boolean
   warning?: boolean
   [key: string]: unknown
 }
 
 export type TrafficFlowEdge = Edge<TrafficEdgeData>
 
-/** Animated request packets traveling along wiring. */
+/** Traffic Mode edge: dash-flow when loaded; packets only on Bottleneck paths. */
 export function TrafficEdge({
   id,
   sourceX,
@@ -38,21 +39,20 @@ export function TrafficEdge({
   })
 
   const load = data?.loadRps ?? 0
-  const bottleneck = Boolean(data?.bottleneck)
+  const onBottleneckPath = Boolean(data?.onBottleneckPath)
   const warning = Boolean(data?.warning)
   const intensity = Math.min(1, Math.max(0.15, load / 3000))
   const duration = Math.max(0.85, 2.4 - intensity * 1.4)
-  // Always show at least 2 packets when there is any load so wiring "reads" as live.
-  const packetCount =
-    load <= 0 ? 2 : Math.min(5, 2 + Math.floor(intensity * 3))
+  // Packets only on Bottleneck highlight paths (locked Traffic vocabulary).
+  const packetCount = onBottleneckPath
+    ? Math.min(5, 2 + Math.floor(intensity * 3))
+    : 0
 
-  const stroke = bottleneck
+  const stroke = onBottleneckPath
     ? '#b91c1c'
     : warning
       ? '#b45309'
       : '#0f6e56'
-
-  const packetFill = bottleneck ? '#b91c1c' : '#0f6e56'
 
   return (
     <>
@@ -63,26 +63,27 @@ export function TrafficEdge({
         style={{
           ...style,
           stroke,
-          strokeWidth: bottleneck ? 3 : 2 + intensity,
+          strokeWidth: onBottleneckPath ? 3 : 2 + intensity * 0.5,
         }}
         className={
-          bottleneck
+          onBottleneckPath
             ? 'sim-edge sim-edge-bottleneck'
             : warning
               ? 'sim-edge sim-edge-warning'
-              : 'sim-edge sim-edge-flow'
+              : load > 0
+                ? 'sim-edge sim-edge-flow'
+                : 'sim-edge'
         }
       />
       {Array.from({ length: packetCount }, (_, i) => (
         <circle
           key={`${id}-pkt-${i}`}
-          r={bottleneck ? 5 : 4}
-          fill={packetFill}
+          r={5}
+          fill="#b91c1c"
           stroke="#fffdf8"
           strokeWidth={1.25}
-          className="sim-packet"
+          className="sim-packet sim-packet-hot"
         >
-          {/* path= is more reliable than <mpath> inside React Flow's SVG layers */}
           <animateMotion
             path={edgePath}
             dur={`${duration}s`}

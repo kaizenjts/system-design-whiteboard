@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppStore } from '../app/store'
 import { NODE_TYPE_LABELS } from '../domain/catalog'
 import { simulateFailure } from '../simulation/failure/failure'
@@ -18,6 +18,20 @@ export function FailurePanel() {
     [diagram, failedNodeId],
   )
 
+  const [summaryFlash, setSummaryFlash] = useState(false)
+  const prevFailed = useRef<string | null | undefined>(undefined)
+
+  useEffect(() => {
+    const prev = prevFailed.current
+    prevFailed.current = failedNodeId
+    if (prev === undefined) return
+    if (prev === failedNodeId) return
+    // Flash when a failure is applied or cleared (spec: brief summary attention).
+    setSummaryFlash(true)
+    const t = window.setTimeout(() => setSummaryFlash(false), 700)
+    return () => window.clearTimeout(t)
+  }, [failedNodeId])
+
   const selected = diagram.nodes.find((n) => n.id === selectedNodeId)
   const selectedFailure = failure.nodes.find((n) => n.nodeId === selectedNodeId)
   const failedNode = diagram.nodes.find((n) => n.id === failedNodeId)
@@ -31,18 +45,10 @@ export function FailurePanel() {
         Select a node, then simulate failure. Cascade follows dependents only.
       </p>
 
-      <div className="traffic-presets">
+      <div className="traffic-presets failure-actions">
         <button
           type="button"
-          className="action-btn"
-          disabled={!selectedNodeId}
-          onClick={simulateFailureOnSelected}
-        >
-          Simulate failure
-        </button>
-        <button
-          type="button"
-          className="action-btn"
+          className="action-btn action-btn-primary"
           disabled={!database}
           onClick={() => database && failNode(database.id)}
         >
@@ -59,10 +65,18 @@ export function FailurePanel() {
         <button
           type="button"
           className="action-btn"
+          disabled={!selectedNodeId}
+          onClick={simulateFailureOnSelected}
+        >
+          Simulate selected
+        </button>
+        <button
+          type="button"
+          className="action-btn action-btn-quiet"
           disabled={!failedNodeId}
           onClick={clearFailure}
         >
-          Clear failure
+          Clear
         </button>
       </div>
 
@@ -73,7 +87,12 @@ export function FailurePanel() {
         <div><span className="legend-swatch fail-healthy" /> Healthy</div>
       </div>
 
-      <div className="traffic-summary">
+      <div
+        className={
+          summaryFlash ? 'traffic-summary traffic-summary-flash' : 'traffic-summary'
+        }
+        aria-live="polite"
+      >
         <p>
           Failed target:{' '}
           {failedNode

@@ -34,7 +34,7 @@ Fidelity bar: **Believable Teaching Model** — deterministic, rule-based, inter
 |---|---|
 | Canvas | Manual design first-class: place Nodes, directed Edges, edit, delete |
 | Palette | Client, CDN/DNS, Load Balancer, API, Cache, Database, Queue |
-| Starter | One **URL Shortener** Starter Template for the ~60s demo loop |
+| Starter | One **URL Shortener** Starter Template for the ~60s core learning loop |
 | Persistence | Local save/reload + Export/Import JSON (no accounts) |
 | Health | Rule-based Findings `HC01`–`HC07` |
 | Traffic | Global Load (req/s), equal-split attribution, Capacity defaults + override, Warning/Bottleneck indicators |
@@ -158,7 +158,7 @@ Canonical terms live in [`CONTEXT.md`](./CONTEXT.md). Short set for this PRD:
 - Indicators: ≥80% Capacity → Warning; >100% → Bottleneck + highlight paths through that Node.
 - Live recompute when Load, topology, or Capacity changes.
 
-**Starter demo script**
+**Starter traffic script**
 1. Load **1.5k** → no Bottleneck.  
 2. Load **3k** → Database Bottleneck; API still under default.  
 3. Optional: lower API Capacity → API Warning/Bottleneck (teaches override).
@@ -230,7 +230,7 @@ All Capacities, splits, Findings, and failure cascades are **educational approxi
 
 **Still soft product fog (can stay PRD-adjacent or RFC):**
 - Visual/brand treatment beyond Mode behavior
-- Whether starter ships “slightly broken” for demo punch vs clean + user breaks it
+- Whether starter ships “slightly broken” for teaching punch vs clean + user breaks it
 
 ---
 

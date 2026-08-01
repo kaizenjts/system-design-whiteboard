@@ -25,7 +25,7 @@ export type TrafficResult = {
  * Attribute global Load from Client(s) along outbound edges.
  * Equal-split across sync outbound edges. Queue edges are async side-emits:
  * they receive a copy of the parent Load and do not dilute the sync path
- * (matches PRD starter demo: 3k → Database bottleneck with API→Queue present).
+ * (matches PRD starter teaching loop: 3k → Database bottleneck with API→Queue present).
  */
 export function simulateTraffic(
   diagram: DiagramDocument,

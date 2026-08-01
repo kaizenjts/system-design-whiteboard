@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppStore } from '../app/store'
 import { defaultCapacity } from '../domain/capacity'
 import { NODE_TYPE_LABELS } from '../domain/catalog'
@@ -16,6 +16,22 @@ export function TrafficPanel() {
     () => simulateTraffic(diagram, loadRps),
     [diagram, loadRps],
   )
+
+  const [summaryFlash, setSummaryFlash] = useState(false)
+  const prevBottlenecks = useRef<string | null>(null)
+
+  useEffect(() => {
+    const key = [...traffic.bottleneckNodeIds].sort().join(',')
+    const prev = prevBottlenecks.current
+    prevBottlenecks.current = key
+    if (prev === null) return
+    const appeared = prev === '' && key !== ''
+    const cleared = prev !== '' && key === ''
+    if (!appeared && !cleared) return
+    setSummaryFlash(true)
+    const t = window.setTimeout(() => setSummaryFlash(false), 700)
+    return () => window.clearTimeout(t)
+  }, [traffic.bottleneckNodeIds])
 
   const selected = diagram.nodes.find((n) => n.id === selectedNodeId)
   const selectedTraffic = traffic.nodes.find((n) => n.nodeId === selectedNodeId)
@@ -46,21 +62,36 @@ export function TrafficPanel() {
         onChange={(e) => setLoadRps(Number(e.target.value))}
         aria-label="Load slider"
       />
-      <div className="traffic-presets">
-        <button type="button" className="action-btn" onClick={() => setLoadRps(1_500)}>
-          1.5k
-        </button>
-        <button type="button" className="action-btn" onClick={() => setLoadRps(2_000)}>
-          2k
-        </button>
-        <button type="button" className="action-btn" onClick={() => setLoadRps(3_000)}>
-          3k
-        </button>
-        <button type="button" className="action-btn" onClick={() => setLoadRps(5_000)}>
-          5k
-        </button>
+      <div className="traffic-presets" role="group" aria-label="Load presets">
+        {(
+          [
+            [1_500, '1.5k'],
+            [2_000, '2k'],
+            [3_000, '3k'],
+            [5_000, '5k'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={
+              loadRps === value
+                ? 'action-btn action-btn-primary'
+                : 'action-btn'
+            }
+            aria-pressed={loadRps === value}
+            onClick={() => setLoadRps(value)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
-      <div className="traffic-summary">
+      <div
+        className={
+          summaryFlash ? 'traffic-summary traffic-summary-flash' : 'traffic-summary'
+        }
+        aria-live="polite"
+      >
         <p>
           Bottlenecks:{' '}
           {traffic.bottleneckNodeIds.length === 0

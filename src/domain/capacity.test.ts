@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defaultCapacity } from './capacity'
+import { defaultCapacity, formatCapacity } from './capacity'
 
 describe('defaultCapacity', () => {
   it('returns PRD default capacities in req/s', () => {
@@ -13,5 +13,16 @@ describe('defaultCapacity', () => {
 
   it('returns undefined for Client (Load source, no Capacity check)', () => {
     expect(defaultCapacity('client')).toBeUndefined()
+  })
+})
+
+describe('formatCapacity', () => {
+  it('formats whole thousands as k', () => {
+    expect(formatCapacity(2_000)).toBe('2k')
+    expect(formatCapacity(50_000)).toBe('50k')
+  })
+
+  it('keeps small values as plain numbers', () => {
+    expect(formatCapacity(80)).toBe('80')
   })
 })

@@ -19,3 +19,13 @@ export function defaultCapacity(type: NodeType): number | undefined {
       return undefined
   }
 }
+
+/** Compact Capacity label for palette / badges (e.g. 2000 → "2k"). */
+export function formatCapacity(rps: number): string {
+  if (rps >= 1000 && rps % 1000 === 0) return `${rps / 1000}k`
+  if (rps >= 1000) {
+    const k = rps / 1000
+    return `${Number.isInteger(k) ? k : k.toFixed(1)}k`
+  }
+  return String(rps)
+}

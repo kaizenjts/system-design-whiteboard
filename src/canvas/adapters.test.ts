@@ -61,4 +61,84 @@ describe('domain ↔ React Flow adapters', () => {
       },
     ])
   })
+
+  it('marks traffic packets only on Bottleneck highlight edges', () => {
+    const edges = toFlowEdges(sample, {
+      edgeMode: 'traffic',
+      edgeLoadById: { e1: 3000 },
+      highlightEdgeIds: ['e1'],
+      warningNodeIds: [],
+      bottleneckNodeIds: ['b'],
+    })
+
+    expect(edges[0]?.data).toMatchObject({
+      loadRps: 3000,
+      onBottleneckPath: true,
+      warning: false,
+    })
+    expect(edges[0]?.className).toBe('rf-edge-bottleneck-path')
+  })
+
+  it('keeps dash-only traffic edges off the Bottleneck path (no packets flag)', () => {
+    const edges = toFlowEdges(sample, {
+      edgeMode: 'traffic',
+      edgeLoadById: { e1: 1500 },
+      highlightEdgeIds: [],
+      warningNodeIds: [],
+      bottleneckNodeIds: [],
+    })
+
+    expect(edges[0]?.data).toMatchObject({
+      loadRps: 1500,
+      onBottleneckPath: false,
+      warning: false,
+    })
+    expect(edges[0]?.className).toBeUndefined()
+  })
+
+  it('accents non-bottleneck nodes on the traffic highlight path', () => {
+    const nodes = toFlowNodes(sample, {
+      loadByNodeId: { a: 3000, b: 3000 },
+      highlightNodeIds: ['a', 'b'],
+      bottleneckNodeIds: ['b'],
+    })
+
+    expect(nodes.find((n) => n.id === 'a')?.className).toContain(
+      'rf-node-traffic-path',
+    )
+    expect(nodes.find((n) => n.id === 'a')?.data.onTrafficPath).toBe(true)
+    expect(nodes.find((n) => n.id === 'b')?.className).toContain(
+      'rf-node-bottleneck',
+    )
+    expect(nodes.find((n) => n.id === 'b')?.className).not.toContain(
+      'rf-node-traffic-path',
+    )
+  })
+
+  it('marks Health presence vs focus tone on finding highlights', () => {
+    const presence = toFlowNodes(sample, {
+      highlightNodeIds: ['b'],
+      findingSeverityByNodeId: { b: 'high' },
+      healthHighlightMode: 'presence',
+    })
+    expect(presence.find((n) => n.id === 'b')?.data).toMatchObject({
+      findingSeverity: 'high',
+      findingTone: 'presence',
+    })
+    expect(presence.find((n) => n.id === 'b')?.className).toContain(
+      'rf-node-finding-presence',
+    )
+
+    const focus = toFlowNodes(sample, {
+      highlightNodeIds: ['b'],
+      findingSeverityByNodeId: { b: 'medium' },
+      healthHighlightMode: 'focus',
+      findingPulseKey: 3,
+    })
+    expect(focus.find((n) => n.id === 'b')?.data).toMatchObject({
+      findingSeverity: 'medium',
+      findingTone: 'focus',
+      findingPulseKey: 3,
+    })
+  })
 })

@@ -57,7 +57,7 @@ export function DiagramActions() {
   return (
     <div className="diagram-actions" aria-label="Diagram actions">
       <details ref={pickerRef} className="starter-picker">
-        <summary className="action-btn starter-picker-summary">
+        <summary className="action-btn action-btn-primary starter-picker-summary">
           Load starter
         </summary>
         <div className="starter-picker-menu" role="menu">
@@ -74,12 +74,12 @@ export function DiagramActions() {
           ))}
         </div>
       </details>
-      <button type="button" className="action-btn" onClick={exportJson}>
+      <button type="button" className="action-btn action-btn-quiet" onClick={exportJson}>
         Export
       </button>
       <button
         type="button"
-        className="action-btn"
+        className="action-btn action-btn-quiet"
         onClick={() => fileRef.current?.click()}
       >
         Import

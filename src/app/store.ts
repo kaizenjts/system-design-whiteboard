@@ -28,6 +28,10 @@ type AppState = {
   findings: Finding[]
   highlightNodeIds: string[]
   highlightEdgeIds: string[]
+  /** Health: all-Findings presence vs one Finding focused. */
+  healthHighlightMode: 'none' | 'presence' | 'focus'
+  /** Bumps on Finding select to retrigger one-shot pulse. */
+  findingPulseKey: number
   diagramRevision: number
   setMode: (mode: Mode) => void
   setSelectedNodeId: (id: string | null) => void
@@ -101,6 +105,8 @@ const emptyHealth = {
   findings: [] as Finding[],
   highlightNodeIds: [] as string[],
   highlightEdgeIds: [] as string[],
+  healthHighlightMode: 'none' as const,
+  findingPulseKey: 0,
 }
 
 function highlightsFromFindings(findings: Finding[]) {
@@ -132,6 +138,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         mode,
         findings,
         ...highlightsFromFindings(findings),
+        healthHighlightMode: findings.length > 0 ? 'presence' : 'none',
+        findingPulseKey: 0,
         failedNodeId: null,
       })
       return
@@ -174,13 +182,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     const findings = healthCheck(get().diagram, {
       activeStarter: get().activeStarter,
     })
-    set({ findings, ...highlightsFromFindings(findings) })
+    set({
+      findings,
+      ...highlightsFromFindings(findings),
+      healthHighlightMode: findings.length > 0 ? 'presence' : 'none',
+      findingPulseKey: 0,
+    })
   },
 
   selectFinding: (finding) => {
     set({
       highlightNodeIds: finding.relatedNodeIds,
       highlightEdgeIds: finding.relatedEdgeIds,
+      healthHighlightMode: 'focus',
+      findingPulseKey: get().findingPulseKey + 1,
     })
   },
 

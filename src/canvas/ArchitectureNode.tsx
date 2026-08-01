@@ -1,5 +1,5 @@
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
-import type { CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { NODE_TYPE_LABELS } from '../domain/catalog'
 import type { ArchitectureNodeData } from './adapters'
 
@@ -9,12 +9,29 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
   const title = data.label || NODE_TYPE_LABELS[data.nodeType]
   const fail = data.failureState && data.failureState !== 'healthy'
   const finding = data.findingSeverity
+  const findingTone = data.findingTone
+  const [findingPulse, setFindingPulse] = useState(false)
+
+  useEffect(() => {
+    if (findingTone !== 'focus' || !data.findingPulseKey) {
+      setFindingPulse(false)
+      return
+    }
+    setFindingPulse(true)
+    const t = window.setTimeout(() => setFindingPulse(false), 700)
+    return () => window.clearTimeout(t)
+  }, [data.findingPulseKey, findingTone])
+
   const stateClass = fail
     ? `arch-node-fail-${data.failureState}`
     : finding === 'high'
-      ? 'arch-node-finding-high'
+      ? findingTone === 'presence'
+        ? 'arch-node-finding-high arch-node-finding-presence'
+        : 'arch-node-finding-high arch-node-finding-focus'
       : finding === 'medium'
-        ? 'arch-node-finding-medium'
+        ? findingTone === 'presence'
+          ? 'arch-node-finding-medium arch-node-finding-presence'
+          : 'arch-node-finding-medium arch-node-finding-focus'
         : data.trafficState === 'bottleneck'
           ? 'arch-node-bottleneck'
           : data.trafficState === 'warning'
@@ -28,13 +45,17 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
         } as CSSProperties)
       : undefined
 
+  const hasTrafficLoad = data.loadRps !== undefined && data.trafficState
+
   return (
     <div
       className={[
         'arch-node',
         selected ? 'arch-node-selected' : '',
         stateClass,
-        data.trafficState && data.trafficState !== 'ok' ? 'arch-node-live' : '',
+        findingPulse ? 'arch-node-finding-pulse' : '',
+        data.onTrafficPath ? 'arch-node-path-accent' : '',
+        hasTrafficLoad ? 'arch-node-live' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -43,6 +64,7 @@ export function ArchitectureNode({ data, selected }: NodeProps<ArchNode>) {
       data-traffic={data.trafficState ?? undefined}
       data-failure={data.failureState ?? undefined}
       data-finding={finding ?? undefined}
+      data-finding-tone={findingTone ?? undefined}
     >
       <Handle type="target" position={Position.Left} />
       <div className="arch-node-type">{NODE_TYPE_LABELS[data.nodeType]}</div>

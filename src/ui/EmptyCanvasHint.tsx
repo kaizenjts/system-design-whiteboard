@@ -1,7 +1,7 @@
 import { useAppStore } from '../app/store'
 import { STARTERS, starterById, type StarterId } from '../starters/catalog'
 
-/** First-run / empty-canvas call-to-action for the ~60s demo loop. */
+/** First-run / empty-canvas call-to-action for the ~60s core loop. */
 export function EmptyCanvasHint() {
   const nodeCount = useAppStore((s) => s.diagram.nodes.length)
   const setDiagram = useAppStore((s) => s.setDiagram)

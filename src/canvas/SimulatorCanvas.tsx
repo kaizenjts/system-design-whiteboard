@@ -3,13 +3,15 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
   type Connection,
   type EdgeChange,
   type EdgeTypes,
   type NodeChange,
   type NodeTypes,
 } from '@xyflow/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, type DragEvent } from 'react'
 import { useAppStore } from '../app/store'
 import { PALETTE_TYPES } from '../domain/catalog'
 import { EmptyCanvasHint } from '../ui/EmptyCanvasHint'
@@ -18,6 +20,7 @@ import { simulateTraffic } from '../simulation/traffic/traffic'
 import { ArchitectureNode } from './ArchitectureNode'
 import { FailureEdge } from './FailureEdge'
 import { FitViewOnRevision } from './FitViewOnRevision'
+import { isPaletteNodeType, PALETTE_DND_MIME } from './paletteDnD'
 import { TrafficEdge } from './TrafficEdge'
 import { WiringEdge } from './WiringEdge'
 import { toFlowEdges, toFlowNodes } from './adapters'
@@ -35,19 +38,31 @@ const edgeTypes = {
 } as EdgeTypes
 
 export function SimulatorCanvas() {
+  return (
+    <ReactFlowProvider>
+      <SimulatorCanvasInner />
+    </ReactFlowProvider>
+  )
+}
+
+function SimulatorCanvasInner() {
   const mode = useAppStore((s) => s.mode)
   const diagram = useAppStore((s) => s.diagram)
   const selectedNodeId = useAppStore((s) => s.selectedNodeId)
   const highlightNodeIds = useAppStore((s) => s.highlightNodeIds)
   const highlightEdgeIds = useAppStore((s) => s.highlightEdgeIds)
   const findings = useAppStore((s) => s.findings)
+  const healthHighlightMode = useAppStore((s) => s.healthHighlightMode)
+  const findingPulseKey = useAppStore((s) => s.findingPulseKey)
   const loadRps = useAppStore((s) => s.loadRps)
   const failedNodeId = useAppStore((s) => s.failedNodeId)
   const setSelectedNodeId = useAppStore((s) => s.setSelectedNodeId)
   const updateNode = useAppStore((s) => s.updateNode)
   const removeNode = useAppStore((s) => s.removeNode)
+  const addNode = useAppStore((s) => s.addNode)
   const addEdge = useAppStore((s) => s.addEdge)
   const removeEdge = useAppStore((s) => s.removeEdge)
+  const { screenToFlowPosition } = useReactFlow()
 
   const traffic = useMemo(
     () => (mode === 'traffic' ? simulateTraffic(diagram, loadRps) : null),
@@ -97,12 +112,16 @@ export function SimulatorCanvas() {
       selectedNodeId,
       highlightNodeIds,
       findingSeverityByNodeId,
+      healthHighlightMode,
+      findingPulseKey,
     })
   }, [
     diagram,
     selectedNodeId,
     highlightNodeIds,
     findings,
+    healthHighlightMode,
+    findingPulseKey,
     traffic,
     failure,
   ])
@@ -170,6 +189,26 @@ export function SimulatorCanvas() {
     [addEdge],
   )
 
+  const onDragOver = useCallback((event: DragEvent) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  const onDrop = useCallback(
+    (event: DragEvent) => {
+      event.preventDefault()
+      if (mode !== 'design') return
+      const raw = event.dataTransfer.getData(PALETTE_DND_MIME)
+      if (!isPaletteNodeType(raw)) return
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      })
+      addNode(raw, position)
+    },
+    [addNode, mode, screenToFlowPosition],
+  )
+
   return (
     <div
       className={[
@@ -201,6 +240,8 @@ export function SimulatorCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         fitView
         deleteKeyCode={['Backspace', 'Delete']}
         proOptions={{ hideAttribution: true }}

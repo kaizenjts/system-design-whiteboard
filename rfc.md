@@ -210,7 +210,7 @@ Not tickets yet — order for post-RFC build:
 5. `simulation/health` + Health Mode UI  
 6. `simulation/traffic` + Traffic Mode UI  
 7. `simulation/failure` + Failure Mode UI  
-8. Polish core-loop demo; fix starter false positives (HC05/HC06)
+8. Polish core learning loop; fix starter false positives (HC05/HC06)
 
 ---
 
@@ -228,7 +228,7 @@ Not tickets yet — order for post-RFC build:
 ## 13. Open items (after RFC)
 
 - Visual/brand treatment (keep Whiteboard name vs rename)
-- Whether starter ships slightly broken for demo punch vs clean
+- Whether starter ships slightly broken for teaching punch vs clean
 - Concrete implementation tickets / project board breakdown
 - Exact React / Vite major versions at scaffold time
 
